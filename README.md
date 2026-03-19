@@ -1,6 +1,6 @@
 # SocNotes
 
-A fast, keyboard-driven terminal notes app. Single binary, no dependencies, SQLite-backed.
+Stream of consciousness notes. A fast, keyboard-driven terminal notes app. Single binary, no dependencies, SQLite-backed.
 
 ## Install
 
