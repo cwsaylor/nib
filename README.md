@@ -1,4 +1,4 @@
-# SocNotes
+# nib
 
 Stream of consciousness notes. A fast, keyboard-driven terminal notes app. Single binary, no dependencies, SQLite-backed.
 
@@ -6,14 +6,14 @@ Stream of consciousness notes. A fast, keyboard-driven terminal notes app. Singl
 
 ```bash
 make build
-./socnotes
+./nib
 ```
 
 Requires Go 1.26+.
 
 ## Usage
 
-Notes are stored at `~/.local/share/socnotes/socnotes.db`. The first line of each note becomes its title.
+Notes are stored at `~/.local/share/nib/nib.db`. The first line of each note becomes its title.
 
 ### List view
 

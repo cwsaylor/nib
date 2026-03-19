@@ -1,4 +1,4 @@
-BINARY=socnotes
+BINARY=nib
 
 .PHONY: build run test clean
 

@@ -2,9 +2,9 @@ package model
 
 import (
 	"path/filepath"
-	"socnotes/db"
-	"socnotes/messages"
-	"socnotes/types"
+	"nib/db"
+	"nib/messages"
+	"nib/types"
 	"testing"
 	"time"
 

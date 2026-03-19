@@ -6,15 +6,15 @@ import (
 	"os"
 	"path/filepath"
 
-	"socnotes/db"
-	"socnotes/model"
+	"nib/db"
+	"nib/model"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/adrg/xdg"
 )
 
 func main() {
-	dbPath := filepath.Join(xdg.DataHome, "socnotes", "socnotes.db")
+	dbPath := filepath.Join(xdg.DataHome, "nib", "nib.db")
 	if err := os.MkdirAll(filepath.Dir(dbPath), 0755); err != nil {
 		fmt.Fprintf(os.Stderr, "Error creating data directory: %v\n", err)
 		os.Exit(1)

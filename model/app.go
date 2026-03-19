@@ -1,10 +1,10 @@
 package model
 
 import (
-	"socnotes/commands"
-	"socnotes/db"
-	"socnotes/messages"
-	"socnotes/theme"
+	"nib/commands"
+	"nib/db"
+	"nib/messages"
+	"nib/theme"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"

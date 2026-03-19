@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"socnotes/types"
+	"nib/types"
 	"testing"
 )
 

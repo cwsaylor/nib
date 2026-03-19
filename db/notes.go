@@ -3,7 +3,7 @@ package db
 import (
 	"database/sql"
 	"fmt"
-	"socnotes/types"
+	"nib/types"
 	"strings"
 	"time"
 )

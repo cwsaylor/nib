@@ -2,7 +2,7 @@ package model
 
 import (
 	"path/filepath"
-	"socnotes/db"
+	"nib/db"
 	"testing"
 
 	tea "github.com/charmbracelet/bubbletea"

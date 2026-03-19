@@ -1,11 +1,11 @@
 package model
 
 import (
-	"socnotes/commands"
-	"socnotes/keys"
-	"socnotes/messages"
-	"socnotes/theme"
-	"socnotes/types"
+	"nib/commands"
+	"nib/keys"
+	"nib/messages"
+	"nib/theme"
+	"nib/types"
 	"strings"
 
 	"github.com/charmbracelet/bubbles/key"

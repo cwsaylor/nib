@@ -2,8 +2,8 @@ package model
 
 import (
 	"fmt"
-	"socnotes/commands"
-	"socnotes/theme"
+	"nib/commands"
+	"nib/theme"
 
 	tea "github.com/charmbracelet/bubbletea"
 )

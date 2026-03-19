@@ -1,6 +1,6 @@
 package messages
 
-import "socnotes/types"
+import "nib/types"
 
 type NotesLoadedMsg struct {
 	Notes   []types.Note

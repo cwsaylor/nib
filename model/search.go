@@ -2,10 +2,10 @@ package model
 
 import (
 	"fmt"
-	"socnotes/commands"
-	"socnotes/messages"
-	"socnotes/theme"
-	"socnotes/types"
+	"nib/commands"
+	"nib/messages"
+	"nib/theme"
+	"nib/types"
 	"strings"
 	"time"
 

@@ -2,12 +2,12 @@ package model
 
 import (
 	"fmt"
-	"socnotes/commands"
-	"socnotes/db"
-	"socnotes/keys"
-	"socnotes/messages"
-	"socnotes/theme"
-	"socnotes/types"
+	"nib/commands"
+	"nib/db"
+	"nib/keys"
+	"nib/messages"
+	"nib/theme"
+	"nib/types"
 	"strings"
 	"time"
 
@@ -186,7 +186,7 @@ func (m Model) updateList(msg tea.Msg) (Model, tea.Cmd) {
 
 func (l ListModel) View(width, height int) string {
 	landscape := width > 2*height
-	titleBar := theme.TitleBar.Width(width - 4).Render("SocNotes")
+	titleBar := theme.TitleBar.Width(width - 4).Render("nib")
 	cmdBar := theme.HelpStyle.Render("  n new  e edit  s search  d delete  y yank  t trash  q quit")
 
 	// Compute list dimensions based on orientation

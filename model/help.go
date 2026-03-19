@@ -1,12 +1,12 @@
 package model
 
 import (
-	"socnotes/theme"
+	"nib/theme"
 
 	"github.com/charmbracelet/lipgloss"
 )
 
-var helpText = `SocNotes — Keyboard Shortcuts
+var helpText = `nib — Keyboard Shortcuts
 
   Navigation
     j / ↑      Move up

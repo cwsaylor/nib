@@ -1,4 +1,4 @@
-module socnotes
+module nib
 
 go 1.26.1
 
