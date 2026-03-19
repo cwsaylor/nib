@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"os"
@@ -12,6 +13,9 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
+// Version is set via ldflags at build time
+var Version = "dev"
+
 func dataHome() string {
 	if v := os.Getenv("XDG_DATA_HOME"); v != "" {
 		return v
@@ -21,6 +25,15 @@ func dataHome() string {
 }
 
 func main() {
+	versionShort := flag.Bool("v", false, "Display version")
+	versionLong := flag.Bool("version", false, "Display version")
+	flag.Parse()
+
+	if *versionShort || *versionLong {
+		fmt.Println(Version)
+		return
+	}
+
 	dbPath := filepath.Join(dataHome(), "nib", "nib.db")
 	if err := os.MkdirAll(filepath.Dir(dbPath), 0755); err != nil {
 		fmt.Fprintf(os.Stderr, "Error creating data directory: %v\n", err)
