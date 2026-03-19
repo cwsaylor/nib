@@ -3,14 +3,12 @@ package model
 import (
 	"fmt"
 	"socnotes/commands"
-	"socnotes/keys"
 	"socnotes/messages"
 	"socnotes/theme"
 	"socnotes/types"
 	"strings"
 	"time"
 
-	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -63,13 +61,13 @@ func (m Model) updateSearch(msg tea.Msg) (Model, tea.Cmd) {
 				return m, commands.LoadNote(m.db, n.ID)
 			}
 
-		case key.Matches(msg, keys.ListKeys.Up):
+		case msg.Type == tea.KeyUp:
 			if m.search.cursor > 0 {
 				m.search.cursor--
 			}
 			return m, nil
 
-		case key.Matches(msg, keys.ListKeys.Down):
+		case msg.Type == tea.KeyDown:
 			if m.search.cursor < len(m.search.results)-1 {
 				m.search.cursor++
 			}
