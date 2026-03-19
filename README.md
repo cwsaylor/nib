@@ -1,8 +1,16 @@
 # nib
 
-Stream of consciousness notes. A fast, keyboard-driven terminal notes app. Single binary, no dependencies, SQLite-backed.
+A fast, keyboard-driven terminal notes app. Single binary, no dependencies, SQLite-backed.
 
 ## Install
+
+### Homebrew
+
+```bash
+brew install cwsaylor/tap/nib
+```
+
+### From source
 
 ```bash
 make build
