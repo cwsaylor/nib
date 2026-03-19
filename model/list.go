@@ -36,12 +36,19 @@ func NewListModel() ListModel {
 func (l *ListModel) SetSize(w, h int) {
 	l.width = w
 	l.height = h
-	previewH := h*50/100 - 2
-	if previewH < 3 {
-		previewH = 3
+	if w > 2*h {
+		// Landscape: preview takes right half
+		l.preview.Width = w/2 - 6
+		l.preview.Height = h - 5
+	} else {
+		// Portrait: preview below list
+		previewH := h*50/100 - 2
+		if previewH < 3 {
+			previewH = 3
+		}
+		l.preview.Width = w - 6
+		l.preview.Height = previewH
 	}
-	l.preview.Width = w - 6
-	l.preview.Height = previewH
 }
 
 func (l *ListModel) SetNotes(notes []types.Note) {
@@ -178,19 +185,26 @@ func (m Model) updateList(msg tea.Msg) (Model, tea.Cmd) {
 }
 
 func (l ListModel) View(width, height int) string {
+	landscape := width > 2*height
 	titleBar := theme.TitleBar.Width(width - 4).Render("SocNotes")
+	cmdBar := theme.HelpStyle.Render("  n new  e edit  s search  d delete  y yank  t trash  q quit")
 
-	// Note list
-	listHeight := height*40/100 - 3
+	// Compute list dimensions based on orientation
+	var listHeight, listWidth int
+	if landscape {
+		listHeight = height - 4
+		listWidth = width / 2
+	} else {
+		listHeight = height*40/100 - 3
+		listWidth = width
+	}
 	if listHeight < 3 {
 		listHeight = 3
 	}
 
 	if len(l.notes) == 0 {
 		list := theme.SubtleText.Render("  No notes yet. Press 'n' to create one.")
-
 		preview := theme.PreviewBorder.Width(width - 4).Render(l.preview.View())
-		cmdBar := theme.HelpStyle.Render("  n new  e edit  s search  d delete  y yank  t trash  q quit")
 		return lipgloss.JoinVertical(lipgloss.Left, titleBar, list, preview, cmdBar)
 	}
 
@@ -209,6 +223,10 @@ func (l ListModel) View(width, height int) string {
 	}
 
 	var listItems []string
+	itemWidth := listWidth - 6
+	if itemWidth < 10 {
+		itemWidth = 10
+	}
 	for i := start; i < end; i++ {
 		n := l.notes[i]
 		title := n.Title
@@ -219,26 +237,29 @@ func (l ListModel) View(width, height int) string {
 		line := fmt.Sprintf("%s — %s", title, timestamp)
 
 		if i == l.cursor {
-			listItems = append(listItems, theme.SelectedItem.Width(width-6).Render("> "+line))
+			listItems = append(listItems, theme.SelectedItem.Width(itemWidth).Render("> "+line))
 		} else {
-			listItems = append(listItems, theme.NormalItem.Width(width-6).Render("  "+line))
+			listItems = append(listItems, theme.NormalItem.Width(itemWidth).Render("  "+line))
 		}
 	}
 
 	list := strings.Join(listItems, "\n")
 
-	// Preview pane
+	if landscape {
+		// Side-by-side: list on left, preview on right
+		previewWidth := width - listWidth - 4
+		if previewWidth < 10 {
+			previewWidth = 10
+		}
+		preview := theme.PreviewBorder.Width(previewWidth).Render(l.preview.View())
+		listPane := lipgloss.NewStyle().Width(listWidth).Height(listHeight).Render(list)
+		middle := lipgloss.JoinHorizontal(lipgloss.Top, listPane, preview)
+		return lipgloss.JoinVertical(lipgloss.Left, titleBar, middle, cmdBar)
+	}
+
+	// Portrait: vertical stack
 	preview := theme.PreviewBorder.Width(width - 4).Render(l.preview.View())
-
-	// Command bar
-	cmdBar := theme.HelpStyle.Render("  n new  e edit  s search  d delete  y yank  t trash  q quit")
-
-	return lipgloss.JoinVertical(lipgloss.Left,
-		titleBar,
-		list,
-		preview,
-		cmdBar,
-	)
+	return lipgloss.JoinVertical(lipgloss.Left, titleBar, list, preview, cmdBar)
 }
 
 func relativeTime(t time.Time) string {
