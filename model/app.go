@@ -37,6 +37,7 @@ type Model struct {
 	confirm   ConfirmModel
 	trash     TrashModel
 	status    string
+	showHelp  bool
 	width     int
 	height    int
 	err       error
@@ -72,6 +73,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		if msg.String() == "ctrl+c" {
 			return m, tea.Quit
+		}
+		if msg.String() == "?" && m.inputMode == InputNavigation {
+			m.showHelp = !m.showHelp
+			return m, nil
+		}
+		if m.showHelp {
+			m.showHelp = false
+			return m, nil
 		}
 
 	case messages.ErrMsg:
@@ -133,6 +142,10 @@ func (m Model) View() string {
 	if m.err != nil {
 		errBar := theme.ErrorText.Width(m.width).Render("Error: " + m.err.Error())
 		content = lipgloss.JoinVertical(lipgloss.Left, content, errBar)
+	}
+
+	if m.showHelp {
+		content = helpView(m.width, m.height)
 	}
 
 	return content
