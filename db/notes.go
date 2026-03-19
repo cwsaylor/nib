@@ -1,17 +1,40 @@
 package db
 
 import (
+	"database/sql"
 	"fmt"
 	"socnotes/types"
 	"strings"
 	"time"
 )
 
-func (d *DB) ListActive() ([]types.Note, error) {
-	rows, err := d.conn.Query(`
-		SELECT id, title, substr(body, 1, 120), created_at, updated_at
-		FROM notes WHERE deleted_at IS NULL
-		ORDER BY updated_at DESC`)
+const PageSize = 50
+
+// ListCursor holds the keyset pagination cursor for ListActive.
+type ListCursor struct {
+	UpdatedAt time.Time
+	ID        int
+}
+
+func (d *DB) ListActive(limit int, before *ListCursor) ([]types.Note, error) {
+	var rows *sql.Rows
+	var err error
+
+	if before != nil {
+		rows, err = d.conn.Query(`
+			SELECT id, title, substr(body, 1, 120), created_at, updated_at
+			FROM notes WHERE deleted_at IS NULL
+			  AND (updated_at < ? OR (updated_at = ? AND id < ?))
+			ORDER BY updated_at DESC, id DESC
+			LIMIT ?`, before.UpdatedAt.Format("2006-01-02 15:04:05"),
+			before.UpdatedAt.Format("2006-01-02 15:04:05"), before.ID, limit)
+	} else {
+		rows, err = d.conn.Query(`
+			SELECT id, title, substr(body, 1, 120), created_at, updated_at
+			FROM notes WHERE deleted_at IS NULL
+			ORDER BY updated_at DESC, id DESC
+			LIMIT ?`, limit)
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -171,7 +194,7 @@ func (d *DB) ListTrashed() ([]types.Note, error) {
 	return notes, rows.Err()
 }
 
-func (d *DB) Search(query string) ([]types.Note, error) {
+func (d *DB) Search(query string, limit int, offset int) ([]types.Note, error) {
 	if strings.TrimSpace(query) == "" {
 		return nil, nil
 	}
@@ -187,7 +210,7 @@ func (d *DB) Search(query string) ([]types.Note, error) {
 		WHERE notes_fts MATCH ?
 		  AND n.deleted_at IS NULL
 		ORDER BY bm25(notes_fts, 10.0, 1.0)
-		LIMIT 50`, ftsQuery)
+		LIMIT ? OFFSET ?`, ftsQuery, limit, offset)
 	if err != nil {
 		return nil, err
 	}

@@ -25,6 +25,10 @@ var migrations = []string{
 
 	CREATE INDEX IF NOT EXISTS idx_notes_deleted_at ON notes(deleted_at)
 		WHERE deleted_at IS NOT NULL;`,
+
+	// Migration 2: covering index for paginated active notes list
+	`CREATE INDEX IF NOT EXISTS idx_notes_active ON notes(updated_at DESC)
+		WHERE deleted_at IS NULL;`,
 }
 
 func runMigrations(db *sql.DB) error {

@@ -14,11 +14,27 @@ import (
 
 func LoadNotes(s *db.DB) tea.Cmd {
 	return func() tea.Msg {
-		notes, err := s.ListActive()
+		notes, err := s.ListActive(db.PageSize, nil)
 		if err != nil {
 			return messages.ErrMsg{Err: err}
 		}
-		return messages.NotesLoadedMsg{Notes: notes}
+		return messages.NotesLoadedMsg{
+			Notes:   notes,
+			HasMore: len(notes) == db.PageSize,
+		}
+	}
+}
+
+func LoadMoreNotes(s *db.DB, cursor db.ListCursor) tea.Cmd {
+	return func() tea.Msg {
+		notes, err := s.ListActive(db.PageSize, &cursor)
+		if err != nil {
+			return messages.ErrMsg{Err: err}
+		}
+		return messages.MoreNotesLoadedMsg{
+			Notes:   notes,
+			HasMore: len(notes) == db.PageSize,
+		}
 	}
 }
 
@@ -44,11 +60,27 @@ func DeleteNote(s *db.DB, id int) tea.Cmd {
 
 func SearchNotes(s *db.DB, query string) tea.Cmd {
 	return func() tea.Msg {
-		results, err := s.Search(query)
+		results, err := s.Search(query, db.PageSize, 0)
 		if err != nil {
 			return messages.ErrMsg{Err: err}
 		}
-		return messages.SearchResultsMsg{Results: results}
+		return messages.SearchResultsMsg{
+			Results: results,
+			HasMore: len(results) == db.PageSize,
+		}
+	}
+}
+
+func SearchMoreNotes(s *db.DB, query string, offset int) tea.Cmd {
+	return func() tea.Msg {
+		results, err := s.Search(query, db.PageSize, offset)
+		if err != nil {
+			return messages.ErrMsg{Err: err}
+		}
+		return messages.MoreSearchResultsMsg{
+			Results: results,
+			HasMore: len(results) == db.PageSize,
+		}
 	}
 }
 

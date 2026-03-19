@@ -19,6 +19,9 @@ type SearchModel struct {
 	results   []types.Note
 	cursor    int
 	lastQuery string
+	hasMore   bool
+	offset    int
+	loading   bool
 	width     int
 	height    int
 }
@@ -42,6 +45,9 @@ func (s *SearchModel) Focus() {
 	s.results = nil
 	s.cursor = 0
 	s.lastQuery = ""
+	s.hasMore = false
+	s.offset = 0
+	s.loading = false
 }
 
 func (m Model) updateSearch(msg tea.Msg) (Model, tea.Cmd) {
@@ -71,12 +77,29 @@ func (m Model) updateSearch(msg tea.Msg) (Model, tea.Cmd) {
 			if m.search.cursor < len(m.search.results)-1 {
 				m.search.cursor++
 			}
+			// Load more when near the end
+			if m.search.hasMore && !m.search.loading && m.search.cursor >= len(m.search.results)-5 {
+				m.search.loading = true
+				return m, commands.SearchMoreNotes(m.db, m.search.input.Value(), m.search.offset)
+			}
 			return m, nil
 		}
 
 	case messages.SearchResultsMsg:
 		m.search.results = msg.Results
 		m.search.cursor = 0
+		m.search.hasMore = msg.HasMore
+		m.search.offset = len(msg.Results)
+		m.search.loading = false
+		return m, nil
+
+	case messages.MoreSearchResultsMsg:
+		m.search.loading = false
+		m.search.hasMore = msg.HasMore
+		if len(msg.Results) > 0 {
+			m.search.results = append(m.search.results, msg.Results...)
+			m.search.offset += len(msg.Results)
+		}
 		return m, nil
 
 	case messages.DebounceTickMsg:
@@ -111,27 +134,48 @@ func (s SearchModel) View(width, height int) string {
 
 	input := s.input.View()
 
-	var resultItems []string
-	for i, n := range s.results {
-		title := n.Title
-		if title == "" {
-			title = "Untitled"
-		}
-		preview := strings.ReplaceAll(n.Body, "\n", " ")
-		if len(preview) > 80 {
-			preview = preview[:80] + "..."
-		}
-		line := fmt.Sprintf("%s\n    %s", title, theme.SubtleText.Render(preview))
-		if i == s.cursor {
-			resultItems = append(resultItems, theme.SelectedItem.Width(width-6).Render("> "+line))
-		} else {
-			resultItems = append(resultItems, theme.NormalItem.Width(width-6).Render("  "+line))
-		}
+	listHeight := height - 6 // title + input + blank + cmdBar
+	if listHeight < 3 {
+		listHeight = 3
 	}
 
-	results := strings.Join(resultItems, "\n")
-	if len(resultItems) == 0 && s.input.Value() != "" {
+	var results string
+	if len(s.results) == 0 && s.input.Value() != "" {
 		results = theme.SubtleText.Render("  No results")
+	} else if len(s.results) > 0 {
+		// Compute visible window, then render only those items
+		start := s.cursor - listHeight/2
+		if start < 0 {
+			start = 0
+		}
+		end := start + listHeight
+		if end > len(s.results) {
+			end = len(s.results)
+			start = end - listHeight
+			if start < 0 {
+				start = 0
+			}
+		}
+
+		var resultItems []string
+		for i := start; i < end; i++ {
+			n := s.results[i]
+			title := n.Title
+			if title == "" {
+				title = "Untitled"
+			}
+			preview := strings.ReplaceAll(n.Body, "\n", " ")
+			if len(preview) > 80 {
+				preview = preview[:80] + "..."
+			}
+			line := fmt.Sprintf("%s\n    %s", title, theme.SubtleText.Render(preview))
+			if i == s.cursor {
+				resultItems = append(resultItems, theme.SelectedItem.Width(width-6).Render("> "+line))
+			} else {
+				resultItems = append(resultItems, theme.NormalItem.Width(width-6).Render("  "+line))
+			}
+		}
+		results = strings.Join(resultItems, "\n")
 	}
 
 	cmdBar := theme.HelpStyle.Render("  enter open  ↑↓ navigate  esc back")

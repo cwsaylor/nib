@@ -3,6 +3,7 @@ package model
 import (
 	"fmt"
 	"socnotes/commands"
+	"socnotes/db"
 	"socnotes/keys"
 	"socnotes/messages"
 	"socnotes/theme"
@@ -19,6 +20,8 @@ import (
 type ListModel struct {
 	notes    []types.Note
 	cursor   int
+	hasMore  bool
+	loading  bool
 	preview  viewport.Model
 	width    int
 	height   int
@@ -72,7 +75,17 @@ func (l *ListModel) updatePreview() {
 func (m Model) updateList(msg tea.Msg) (Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case messages.NotesLoadedMsg:
+		m.list.hasMore = msg.HasMore
+		m.list.loading = false
 		m.list.SetNotes(msg.Notes)
+		return m, nil
+
+	case messages.MoreNotesLoadedMsg:
+		m.list.loading = false
+		m.list.hasMore = msg.HasMore
+		if len(msg.Notes) > 0 {
+			m.list.notes = append(m.list.notes, msg.Notes...)
+		}
 		return m, nil
 
 	case messages.NoteSavedMsg:
@@ -99,6 +112,15 @@ func (m Model) updateList(msg tea.Msg) (Model, tea.Cmd) {
 			if m.list.cursor < len(m.list.notes)-1 {
 				m.list.cursor++
 				m.list.updatePreview()
+			}
+			// Load more when near the end
+			if m.list.hasMore && !m.list.loading && m.list.cursor >= len(m.list.notes)-5 {
+				m.list.loading = true
+				last := m.list.notes[len(m.list.notes)-1]
+				return m, commands.LoadMoreNotes(m.db, db.ListCursor{
+					UpdatedAt: last.UpdatedAt,
+					ID:        last.ID,
+				})
 			}
 
 		case key.Matches(msg, keys.ListKeys.New):
@@ -163,8 +185,32 @@ func (l ListModel) View(width, height int) string {
 	if listHeight < 3 {
 		listHeight = 3
 	}
+
+	if len(l.notes) == 0 {
+		list := theme.SubtleText.Render("  No notes yet. Press 'n' to create one.")
+
+		preview := theme.PreviewBorder.Width(width - 4).Render(l.preview.View())
+		cmdBar := theme.HelpStyle.Render("  n new  e edit  s search  d delete  y yank  t trash  q quit")
+		return lipgloss.JoinVertical(lipgloss.Left, titleBar, list, preview, cmdBar)
+	}
+
+	// Compute visible window, then render only those items
+	start := l.cursor - listHeight/2
+	if start < 0 {
+		start = 0
+	}
+	end := start + listHeight
+	if end > len(l.notes) {
+		end = len(l.notes)
+		start = end - listHeight
+		if start < 0 {
+			start = 0
+		}
+	}
+
 	var listItems []string
-	for i, n := range l.notes {
+	for i := start; i < end; i++ {
+		n := l.notes[i]
 		title := n.Title
 		if title == "" {
 			title = "Untitled"
@@ -179,27 +225,7 @@ func (l ListModel) View(width, height int) string {
 		}
 	}
 
-	if len(listItems) == 0 {
-		listItems = append(listItems, theme.SubtleText.Render("  No notes yet. Press 'n' to create one."))
-	}
-
 	list := strings.Join(listItems, "\n")
-	if len(listItems) > listHeight {
-		// Simple scroll: show items around cursor
-		start := l.cursor - listHeight/2
-		if start < 0 {
-			start = 0
-		}
-		end := start + listHeight
-		if end > len(listItems) {
-			end = len(listItems)
-			start = end - listHeight
-			if start < 0 {
-				start = 0
-			}
-		}
-		list = strings.Join(listItems[start:end], "\n")
-	}
 
 	// Preview pane
 	preview := theme.PreviewBorder.Width(width - 4).Render(l.preview.View())
