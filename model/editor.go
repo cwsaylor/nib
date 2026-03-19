@@ -23,7 +23,7 @@ type EditorModel struct {
 
 func NewEditorModel() EditorModel {
 	ta := textarea.New()
-	ta.Placeholder = "Start typing..."
+	ta.Placeholder = ""
 	ta.ShowLineNumbers = false
 	ta.CharLimit = 0
 	return EditorModel{textarea: ta}
