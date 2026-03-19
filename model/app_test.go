@@ -85,6 +85,29 @@ func TestNavigateUpDown(t *testing.T) {
 	}
 }
 
+func TestNewNoteReceivesCreatedMsg(t *testing.T) {
+	m := setupTestModel(t)
+
+	// Press n to create new note
+	result, _ := m.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'n'}})
+	m = result.(Model)
+	if m.mode != ModeEdit {
+		t.Fatalf("expected ModeEdit, got %d", m.mode)
+	}
+
+	// Simulate the NoteCreatedMsg arriving while in ModeEdit
+	note := types.Note{ID: 99, Title: "", Body: ""}
+	result, cmd := m.Update(messages.NoteCreatedMsg{Note: note})
+	m = result.(Model)
+
+	if m.editor.note.ID != 99 {
+		t.Fatalf("expected editor note ID 99, got %d", m.editor.note.ID)
+	}
+	if cmd == nil {
+		t.Fatal("expected Focus command to be returned")
+	}
+}
+
 func TestDeleteConfirmFlow(t *testing.T) {
 	m := setupTestModel(t)
 	m.list.SetNotes([]types.Note{
