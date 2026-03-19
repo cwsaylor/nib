@@ -7,8 +7,8 @@ var (
 
 	TitleBar = lipgloss.NewStyle().
 			Bold(true).
-			Foreground(lipgloss.Color("#FAFAFA")).
-			Background(lipgloss.Color("#7C3AED")).
+			Foreground(lipgloss.Color("#303446")).
+			Background(lipgloss.Color("#99D1DB")).
 			Padding(0, 1).
 			MarginBottom(1)
 
@@ -19,12 +19,12 @@ var (
 
 	PreviewBorder = lipgloss.NewStyle().
 			Border(lipgloss.RoundedBorder()).
-			BorderForeground(lipgloss.Color("#7C3AED")).
+			BorderForeground(lipgloss.Color("#99D1DB")).
 			Padding(0, 1)
 
 	SelectedItem = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#FAFAFA")).
-			Background(lipgloss.Color("#7C3AED")).
+			Foreground(lipgloss.Color("#303446")).
+			Background(lipgloss.Color("#99D1DB")).
 			Padding(0, 1)
 
 	NormalItem = lipgloss.NewStyle().
