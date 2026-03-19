@@ -41,7 +41,7 @@ var helpText = `SocNotes — Keyboard Shortcuts
 func helpView(width, height int) string {
 	style := lipgloss.NewStyle().
 		Border(lipgloss.RoundedBorder()).
-		BorderForeground(lipgloss.Color("#99D1DB")).
+		BorderForeground(lipgloss.Color("#8AABF4")).
 		Padding(1, 3).
 		Width(50)
 
