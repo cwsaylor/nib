@@ -92,10 +92,6 @@ func (m Model) updateEdit(msg tea.Msg) (Model, tea.Cmd) {
 			return m, commands.LoadNotes(m.db)
 		}
 
-	case messages.NoteCreatedMsg:
-		m.editor.SetNote(msg.Note)
-		return m, m.editor.Focus()
-
 	case messages.NoteSavedMsg:
 		m.mode = ModeList
 		m.inputMode = InputNavigation

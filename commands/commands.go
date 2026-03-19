@@ -32,15 +32,6 @@ func SaveNote(s *db.DB, n types.Note) tea.Cmd {
 	}
 }
 
-func CreateNote(s *db.DB) tea.Cmd {
-	return func() tea.Msg {
-		note, err := s.Create("", "")
-		if err != nil {
-			return messages.ErrMsg{Err: err}
-		}
-		return messages.NoteCreatedMsg{Note: note}
-	}
-}
 
 func DeleteNote(s *db.DB, id int) tea.Cmd {
 	return func() tea.Msg {

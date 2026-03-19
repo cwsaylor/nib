@@ -102,9 +102,15 @@ func (m Model) updateList(msg tea.Msg) (Model, tea.Cmd) {
 			}
 
 		case key.Matches(msg, keys.ListKeys.New):
+			note, err := m.db.Create("", "")
+			if err != nil {
+				m.err = err
+				return m, nil
+			}
 			m.mode = ModeEdit
 			m.inputMode = InputText
-			return m, commands.CreateNote(m.db)
+			m.editor.SetNote(note)
+			return m, m.editor.Focus()
 
 		case key.Matches(msg, keys.ListKeys.Edit):
 			if n := m.list.SelectedNote(); n != nil {
@@ -141,9 +147,6 @@ func (m Model) updateList(msg tea.Msg) (Model, tea.Cmd) {
 		m.editor.SetNote(msg.Note)
 		return m, m.editor.Focus()
 
-	case messages.NoteCreatedMsg:
-		m.editor.SetNote(msg.Note)
-		return m, m.editor.Focus()
 	}
 
 	// Scroll preview with mouse/keys

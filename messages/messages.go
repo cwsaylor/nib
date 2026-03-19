@@ -16,4 +16,3 @@ type ErrMsg struct{ Err error }
 type TrashedNotesMsg struct{ Notes []types.Note }
 type NoteRestoredMsg struct{ ID int }
 type NotePurgedMsg struct{ ID int }
-type NoteCreatedMsg struct{ Note types.Note }

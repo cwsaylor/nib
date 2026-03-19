@@ -85,26 +85,23 @@ func TestNavigateUpDown(t *testing.T) {
 	}
 }
 
-func TestNewNoteReceivesCreatedMsg(t *testing.T) {
+func TestNewNoteFocusedImmediately(t *testing.T) {
 	m := setupTestModel(t)
 
-	// Press n to create new note
-	result, _ := m.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'n'}})
+	// Press n to create new note — should synchronously create and focus
+	result, cmd := m.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'n'}})
 	m = result.(Model)
 	if m.mode != ModeEdit {
 		t.Fatalf("expected ModeEdit, got %d", m.mode)
 	}
-
-	// Simulate the NoteCreatedMsg arriving while in ModeEdit
-	note := types.Note{ID: 99, Title: "", Body: ""}
-	result, cmd := m.Update(messages.NoteCreatedMsg{Note: note})
-	m = result.(Model)
-
-	if m.editor.note.ID != 99 {
-		t.Fatalf("expected editor note ID 99, got %d", m.editor.note.ID)
+	if m.editor.note.ID == 0 {
+		t.Fatal("expected note to be created with a real ID")
+	}
+	if !m.editor.textarea.Focused() {
+		t.Fatal("expected textarea to be focused immediately")
 	}
 	if cmd == nil {
-		t.Fatal("expected Focus command to be returned")
+		t.Fatal("expected Focus/blink command to be returned")
 	}
 }
 
