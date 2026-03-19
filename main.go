@@ -10,11 +10,18 @@ import (
 	"nib/model"
 
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/adrg/xdg"
 )
 
+func dataHome() string {
+	if v := os.Getenv("XDG_DATA_HOME"); v != "" {
+		return v
+	}
+	home, _ := os.UserHomeDir()
+	return filepath.Join(home, ".local", "share")
+}
+
 func main() {
-	dbPath := filepath.Join(xdg.DataHome, "nib", "nib.db")
+	dbPath := filepath.Join(dataHome(), "nib", "nib.db")
 	if err := os.MkdirAll(filepath.Dir(dbPath), 0755); err != nil {
 		fmt.Fprintf(os.Stderr, "Error creating data directory: %v\n", err)
 		os.Exit(1)
